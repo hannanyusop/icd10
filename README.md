@@ -7,60 +7,100 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## Installation
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Crudify was designed to work with a clean Laravel 8 install.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Install Laravel:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    laravel new vehicle-app
 
-## Learning Laravel
+Configure the database in your `.env` file:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    DB_DATABASE=vehicle_app
+    DB_USERNAME=root
+    DB_PASSWORD=
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Now, install Crudify via composer:
 
-## Laravel Sponsors
+    composer require redbastie/crudify
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Then, run the Crudify install command:
 
-### Premium Partners
+    php artisan crudify:install
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[CMS Max](https://www.cmsmax.com/)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-- **[Romega Software](https://romegasoftware.com)**
+All done. The only thing left to do is create a user, either via `tinker` or the `DatabaseSeeder`.
 
-## Contributing
+## Usage Example
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Generate CRUD for a new model e.g. a `Vehicle`
 
-## Code of Conduct
+    php artisan make:crud Vehicle
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+This will generate your controller, data table, model, factory, views, nav item, and auto route.
 
-## Security Vulnerabilities
+Modify the `migration` method inside the new `Vehicle` model class:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    public function migration(Blueprint $table)
+    {
+        $table->id();
+        $table->timestamps();
+        $table->string('name');
+        $table->string('brand');
+    }
 
-## License
+You can also specify the factory definition and rules in the model:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+    public static function definition(Generator $faker)
+    {
+        return [
+            'name' => $faker->name,
+            'brand' => $faker->company,
+        ];
+    }
+    
+    public static function rules(Vehicle $vehicle = null)
+    {
+        return [
+            'name' => ['required', Rule::unique('vehicles')->ignore($vehicle->id ?? null)],
+            'brand' => ['required'],
+        ];
+    }
+
+Specify a `Vehicle` seeder in the `DatabaseSeeder` class:
+
+    \App\Models\User::factory()->create([
+        'email' => 'admin@example.com',
+    ]);
+
+    \App\Models\Vehicle::factory(100)->create();
+
+Note that I've added a `User` seeder here as well, which we will use to log in with using the password `password` after.
+
+Add some data table columns in the `VehicleDataTable` class:
+
+    protected function getColumns()
+    {
+        return [
+            Column::make('id'),
+            Column::make('name'),
+            Column::make('brand'),
+            Column::make('created_at'),
+            Column::computed('action')->title(''),
+        ];
+    }
+
+Add form fields in the `vehicles/form.blade.php` view file:
+
+    <x-form-input label="{{ __('Name') }}" name="name"/>
+    <x-form-input label="{{ __('Brand') }}" name="brand"/>
+
+Run a fresh automatic migration command with seeding:
+
+    php artisan migrate:auto --fresh --seed
+
+You can specify `--fresh` and/or `--seed` in the `migrate:auto` command in order to run fresh migrations and/or seed afterwards.
+
+Now you should be able to login to your app and click on the `Vehicles` link in the navbar to perform CRUD operations on the seeded data.
+
+To get an idea how the automatic routing works, check out the `VehicleController`. After updating controller methods, use `php artisan route:list` to see your route info.
