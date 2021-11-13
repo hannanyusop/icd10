@@ -13,6 +13,8 @@ class Map extends Model
 {
     use HasFactory, FillsColumns;
 
+    public $table = 'map';
+
     public function migration(Blueprint $table)
     {
         $table->id();

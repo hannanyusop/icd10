@@ -33,4 +33,8 @@ class Chapter extends Model
             'name' => ['required', Rule::unique('chapters')->ignore($chapter->id ?? null)],
         ];
     }
+
+    public function codes(){
+        return $this->hasMany(Code::class, 'icd10_chapter', 'id');
+    }
 }

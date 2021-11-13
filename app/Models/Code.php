@@ -33,4 +33,12 @@ class Code extends Model
             'name' => ['required', Rule::unique('codes')->ignore($code->id ?? null)],
         ];
     }
+
+    public function chapter(){
+        return $this->hasOne(Chapter::class, 'id', 'icd10_chapter');
+    }
+
+    public function block(){
+        return $this->hasOne(Block::class, 'id_block', 'icd10_block');
+    }
 }

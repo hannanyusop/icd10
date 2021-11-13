@@ -13,6 +13,7 @@ class Report extends Model
 {
     use HasFactory, FillsColumns;
 
+    public $table = 'report';
     public function migration(Blueprint $table)
     {
         $table->id();

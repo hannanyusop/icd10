@@ -32,9 +32,10 @@ class CodeDataTable extends DataTable
     {
         return [
             Column::make('id'),
-            Column::make('name'),
-            Column::make('created_at'),
-            Column::make('updated_at'),
+            Column::make('icd10_code')->title('Code'),
+            Column::make('icd10_chapter')->title('Chapter'),
+            Column::make('icd10_block')->title('Block'),
+            Column::make('icd10_desc')->title('Description'),
             Column::computed('action')->title(''),
         ];
     }

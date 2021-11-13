@@ -32,9 +32,10 @@ class ReportDataTable extends DataTable
     {
         return [
             Column::make('id'),
-            Column::make('name'),
-            Column::make('created_at'),
-            Column::make('updated_at'),
+            Column::make('report_id'),
+            Column::make('report_chapter'),
+            Column::make('report_block'),
+            Column::make('report_blockdesc'),
             Column::computed('action')->title(''),
         ];
     }

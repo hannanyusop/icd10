@@ -13,6 +13,8 @@ class Raw extends Model
 {
     use HasFactory, FillsColumns;
 
+    public $table = 'raw';
+
     public function migration(Blueprint $table)
     {
         $table->id();
